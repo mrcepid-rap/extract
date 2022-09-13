@@ -16,6 +16,9 @@ class ExtractIngestData(IngestData):
         is_snp_tar, is_gene_tar, tarball_prefixes = self._ingest_tarballs(parsed_options.association_tarballs)
         bgen_dict = self._ingest_bgen(parsed_options.bgen_index)
 
+        self._ingest_genetic_data(parsed_options.sparse_grm,
+                                  parsed_options.sparse_grm_sample)
+
         # Put additional covariate processing specific to this module here
         self.set_association_pack(ExtractAssociationPack(self.get_association_pack(),
                                                          is_snp_tar, is_gene_tar, tarball_prefixes,
@@ -87,3 +90,13 @@ class ExtractIngestData(IngestData):
                                         'bgen': line['bgen_dxid'],
                                         'vep': line['vep_dxid']}
         return bgen_dict
+
+    @staticmethod
+    def _ingest_genetic_data(sparse_grm: dxpy.DXFile, sparse_grm_sample: dxpy.DXFile) -> None:
+        # Now grab all genetic data that I have in the folder /project_resources/genetics/
+        os.mkdir("genetics/")  # This is for legacy reasons to make sure all tests work...
+        # This is the sparse matrix
+        dxpy.download_dxfile(sparse_grm.get_id(),
+                             'genetics/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx')
+        dxpy.download_dxfile(sparse_grm_sample.get_id(),
+                             'genetics/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx.sampleIDs.txt')

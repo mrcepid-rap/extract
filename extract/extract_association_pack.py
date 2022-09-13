@@ -11,6 +11,8 @@ class ExtractProgramArgs(ProgramArgs):
     association_tarballs: dxpy.DXFile
     bgen_index: dxpy.DXFile
     gene_ids: List[str]
+    sparse_grm: dxpy.DXFile
+    sparse_grm_sample: dxpy.DXFile
 
 
 # A TypedDict holding information about each chromosome's available genetic data
