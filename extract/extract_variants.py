@@ -307,7 +307,7 @@ class ExtractVariants:
                                                   tarball_prefix=tarball_prefix,
                                                   chromosome=chromosome,
                                                   phenoname=phenoname,
-                                                  hash_gene_info=True)
+                                                  has_gene_info=True)
 
         future_results = thread_utility.collect_futures()
 
