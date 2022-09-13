@@ -240,7 +240,7 @@ class ExtractVariants:
                                           is_binary=self._association_pack.is_binary)
 
         # As futures finish, write unformatted results:
-        fieldnames = ['ENST', 'maskname', 'pheno', 'p_val_init', 'n_car', 'cMAC', 'n_model',
+        fieldnames = ['ENST', 'maskname', 'pheno_name', 'p_val_init', 'n_car', 'cMAC', 'n_model',
                       'p_val_full', 'effect', 'std_err']
         # Binary traits get an additional set of fields to describe the confusion matrix.
         if self._association_pack.is_binary:
