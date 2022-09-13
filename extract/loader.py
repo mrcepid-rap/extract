@@ -40,7 +40,7 @@ class LoadModule(ModuleLoader):
                                        "to extract carriers and phenotype/covariate information for. These ID(s) MUST "
                                        "exist in the file provided to --transcript_index",
                                   type=str, dest='gene_ids', required=True, nargs='+',
-                                  metavar="GENE_ID")
+                                  metavar=("GENE_ID1", "GENE_ID2"))
 
     def _parse_options(self) -> ExtractProgramArgs:
         return ExtractProgramArgs(**vars(self._parser.parse_args(self._input_args.split())))
