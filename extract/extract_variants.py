@@ -237,7 +237,8 @@ class ExtractVariants:
                                           genotype_table=genotype_packs[model],
                                           gene=gene_info.name,
                                           mask_name=model,
-                                          is_binary=self._association_pack.is_binary)
+                                          is_binary=self._association_pack.is_binary,
+                                          always_run_corrected=True)
 
         # As futures finish, write unformatted results:
         fieldnames = ['ENST', 'maskname', 'pheno_name', 'p_val_init', 'n_car', 'cMAC', 'n_model',

@@ -16,6 +16,9 @@ class ExtractIngestData(IngestData):
         is_snp_tar, is_gene_tar, tarball_prefixes = self._ingest_tarballs(parsed_options.association_tarballs)
         bgen_dict = self._ingest_bgen(parsed_options.bgen_index)
 
+        if is_snp_tar is False and is_gene_tar is False and parsed_options.gene_ids is None:
+            raise dxpy.AppError('Must provide gene IDs when NOT using a SNP/GENE tarball!')
+
         self._ingest_genetic_data(parsed_options.sparse_grm,
                                   parsed_options.sparse_grm_sample)
 
