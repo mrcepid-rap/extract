@@ -1,11 +1,21 @@
+import csv
+import os
+from os.path import exists
+from typing import List
+
+import dxpy
+import pandas as pd
 import pandas.core.series
 
 from extract.extract_association_pack import ExtractAssociationPack
-from runassociationtesting.linear_model import linear_model
-from runassociationtesting.linear_model.linear_model import *
-from runassociationtesting.linear_model.proccess_model_output import *
-from runassociationtesting.linear_model.staar_model import *
-from runassociationtesting.thread_utility import ThreadUtility
+from general_utilities.association_resources import process_snp_or_gene_tar, build_transcript_table, get_gene_id, \
+    run_cmd
+from general_utilities.linear_model import linear_model
+from general_utilities.linear_model.linear_model import LinearModelResult
+from general_utilities.linear_model.proccess_model_output import merge_glm_staar_runs, process_linear_model_outputs, \
+    process_staar_outputs
+from general_utilities.linear_model.staar_model import staar_null, staar_genes
+from general_utilities.thread_utility.thread_utility import ThreadUtility
 
 
 class ExtractVariants:
@@ -134,13 +144,13 @@ class ExtractVariants:
         # that specific Gene is on
         if chromosomes is None:
             chromosome = gene_info['chrom']
-            variant_index = pd.read_csv(gzip.open(f'{chromosome}.filtered.vep.tsv.gz', 'rt'),
+            variant_index = pd.read_csv(f'{chromosome}.filtered.vep.tsv.gz',
                                         sep="\t",
                                         dtype={'SIFT': str, 'POLYPHEN': str})
         else:
             variant_index = []
             for chromosome in chromosomes:
-                variant_index.append(pd.read_csv(gzip.open(f'{chromosome}.filtered.vep.tsv.gz', 'rt'),
+                variant_index.append(pd.read_csv(f'{chromosome}.filtered.vep.tsv.gz',
                                                  sep="\t",
                                                  dtype={'SIFT': str, 'POLYPHEN': str}))
             variant_index = pd.concat(variant_index)
@@ -202,7 +212,10 @@ class ExtractVariants:
     def _run_linear_models(self):
 
         print("Loading data and running null Linear Model")
-        null_model = linear_model.linear_model_null(self._association_pack.pheno_names[0], self._association_pack)
+        null_model = linear_model.linear_model_null(self._association_pack.pheno_names[0],
+                                                    self._association_pack.is_binary,
+                                                    self._association_pack.found_quantitative_covariates,
+                                                    self._association_pack.found_categorical_covariates)
 
         # 2. Load the tarballs INTO separate genotypes dictionaries
         print("Loading Linear Model genotypes")

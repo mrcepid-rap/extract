@@ -1,6 +1,3 @@
-from typing import Type
-
-import dxpy
 from extract import extract_ingester
 from extract.extract_association_pack import ExtractProgramArgs, ExtractAssociationPack
 from extract.extract_variants import ExtractVariants
