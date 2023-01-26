@@ -129,7 +129,7 @@ class ExtractVariants:
         cmd = f'bcftools view --threads 4 -S /test/SAMPLES_Include.txt -Ob ' \
               f'-o /test/{tarball_prefix}.{chromosome}.saige_input.bcf ' \
               f'/test/{tarball_prefix}.{chromosome}.SAIGE.bcf'
-        run_cmd(cmd, True)
+        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
 
     def _annotate_variants(self, tarball_prefix: str, gene_info: pandas.core.series.Series,
                            chromosomes: set) -> List[str]:
@@ -174,23 +174,23 @@ class ExtractVariants:
         cmd = f'bcftools view --threads 2 -i \'ID=@/test/{tarball_prefix}.{gene_info["SYMBOL"]}.variants.txt\' -Ob ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.variant_filtered.bcf ' \
               f'/test/{tarball_prefix}.{gene_info["chrom"]}.saige_input.bcf'
-        run_cmd(cmd, True)
+        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
         cmd = f'bcftools +fill-tags --threads 4 -Ob ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.final.bcf ' \
               f'/test/{tarball_prefix}.{gene_info["SYMBOL"]}.variant_filtered.bcf'
-        run_cmd(cmd, True)
+        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
 
         # Now get actual annotations back in:
         cmd = f'bcftools query -f \'%ID\\t%MAF\\t%AC\\t%AC_Het\\t%AC_Hom\\n\' ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.annotated_vars.txt ' \
               f'/test/{tarball_prefix}.{gene_info["SYMBOL"]}.final.bcf'
-        run_cmd(cmd, True)
+        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
 
         # And get a list of individuals with a variant:
         cmd = f'bcftools query -i \"GT=\'alt\'\" -f \'[%CHROM\\t%POS\\t%ID\\t%REF\\t%ALT\\t%SAMPLE\\t%GT\n]\' ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.carriers.txt ' \
               f'/test/{tarball_prefix}.{gene_info["SYMBOL"]}.final.bcf'
-        run_cmd(cmd, True)
+        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
 
         geno_table = pd.read_csv(tarball_prefix + "." + gene_info['SYMBOL'] + ".annotated_vars.txt",
                                  sep="\t",
