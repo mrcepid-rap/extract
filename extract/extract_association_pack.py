@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import TypedDict, Dict, List
+from typing import Dict, List
 
 import dxpy
 
+from general_utilities.association_resources import BGENInformation
 from runassociationtesting.association_pack import AssociationPack, ProgramArgs
 
 
@@ -13,14 +14,6 @@ class ExtractProgramArgs(ProgramArgs):
     gene_ids: List[str]
     sparse_grm: dxpy.DXFile
     sparse_grm_sample: dxpy.DXFile
-
-
-# A TypedDict holding information about each chromosome's available genetic data
-class BGENInformation(TypedDict):
-    index: str
-    sample: str
-    bgen: str
-    vep: str
 
 
 class ExtractAssociationPack(AssociationPack):

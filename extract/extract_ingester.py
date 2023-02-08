@@ -88,10 +88,10 @@ class ExtractIngestData(IngestData):
         bgen_index_csv = csv.DictReader(open("bgen_locs.tsv", "r"), delimiter="\t")
         bgen_dict = {}
         for line in bgen_index_csv:
-            bgen_dict[line['chrom']] = {'index': line['bgen_index_dxid'],
-                                        'sample': line['sample_dxid'],
-                                        'bgen': line['bgen_dxid'],
-                                        'vep': line['vep_dxid']}
+            bgen_dict[line['chrom']] = {'index': dxpy.DXFile(line['bgen_index_dxid']),
+                                        'sample': dxpy.DXFile(line['sample_dxid']),
+                                        'bgen': dxpy.DXFile(line['bgen_dxid']),
+                                        'vep': dxpy.DXFile(line['vep_dxid'])}
         return bgen_dict
 
     @staticmethod

@@ -120,7 +120,7 @@ class ExtractVariants:
 
     def _download_vep(self, chromosome: str) -> None:
 
-        vep_dx = dxpy.DXFile(self._association_pack.bgen_dict[chromosome]['vep'])
+        vep_dx = self._association_pack.bgen_dict[chromosome]['vep']
         dxpy.download_dxfile(vep_dx.get_id(), chromosome + ".filtered.vep.tsv.gz")
 
     @staticmethod
