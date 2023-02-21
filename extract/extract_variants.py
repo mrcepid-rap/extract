@@ -15,7 +15,7 @@ from general_utilities.linear_model.linear_model import LinearModelResult
 from general_utilities.linear_model.proccess_model_output import merge_glm_staar_runs, process_linear_model_outputs, \
     process_staar_outputs
 from general_utilities.linear_model.staar_model import staar_null, staar_genes
-from general_utilities.thread_utility.thread_utility import ThreadUtility
+from general_utilities.job_management.thread_utility import ThreadUtility
 
 
 class ExtractVariants:

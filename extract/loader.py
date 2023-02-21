@@ -48,7 +48,7 @@ class LoadModule(ModuleLoader):
                                   metavar=example_dxfile)
 
     def _parse_options(self) -> ExtractProgramArgs:
-        return ExtractProgramArgs(**vars(self._parser.parse_args(self._input_args.split())))
+        return ExtractProgramArgs(**vars(self._parser.parse_args(self._split_options(self._input_args))))
 
     def _ingest_data(self, parsed_options: ExtractProgramArgs) -> ExtractAssociationPack:
         ingested_data = extract_ingester.ExtractIngestData(parsed_options)
