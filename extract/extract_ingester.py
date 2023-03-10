@@ -1,10 +1,12 @@
+import csv
+import dxpy
 import tarfile
 
-from os.path import exists
-from typing import Dict
+from pathlib import Path
+from typing import Tuple, List, Dict
 
 from extract.extract_association_pack import ExtractAssociationPack, BGENInformation, ExtractProgramArgs
-from runassociationtesting.ingest_data import *
+from runassociationtesting.ingest_data import IngestData
 
 
 class ExtractIngestData(IngestData):
@@ -45,9 +47,9 @@ class ExtractIngestData(IngestData):
                 tarball_prefixes.append(tarball_prefix)
                 tar = tarfile.open(tarball_name, "r:gz")
                 tar.extractall()
-                if exists(tarball_prefix + ".SNP.BOLT.bgen"):
+                if Path(f'{tarball_prefix}.SNP.BOLT.bgen').exists():
                     is_snp_tar = True
-                elif exists(tarball_prefix + ".GENE.BOLT.bgen"):
+                elif Path(f'{tarball_prefix}.GENE.BOLT.bgen').exists():
                     is_gene_tar = True
             else:
                 raise dxpy.AppError(f'Provided association tarball ({association_tarballs.describe()["id"]}) '
@@ -68,10 +70,10 @@ class ExtractIngestData(IngestData):
                     tarball_prefixes.append(tarball_prefix)
                     tar = tarfile.open(tarball_name, "r:gz")
                     tar.extractall()
-                    if exists(tarball_prefix + ".SNP.BOLT.bgen"):
+                    if Path(f'{tarball_prefix}.SNP.BOLT.bgen').exists():
                         raise dxpy.AppError(f'Cannot run masks from a SNP list ({association_tarballs.describe()["id"]}) '
                                             f'when running tarballs as batch...')
-                    elif exists(tarball_prefix + ".GENE.BOLT.bgen"):
+                    elif Path(f'{tarball_prefix}.GENE.BOLT.bgen').exists():
                         raise dxpy.AppError(f'Cannot run masks from a GENE list ({association_tarballs.describe()["id"]}) '
                                             f'when running tarballs as batch...')
 
@@ -84,7 +86,7 @@ class ExtractIngestData(IngestData):
         # Ingest the INDEX of bgen files:
         dxpy.download_dxfile(bgen_index.get_id(), "bgen_locs.tsv")
         # and load it into a dict:
-        os.mkdir("filtered_bgen/")  # For downloading later...
+        Path("filtered_bgen/")  # For downloading later...
         bgen_index_csv = csv.DictReader(open("bgen_locs.tsv", "r"), delimiter="\t")
         bgen_dict = {}
         for line in bgen_index_csv:
@@ -97,7 +99,7 @@ class ExtractIngestData(IngestData):
     @staticmethod
     def _ingest_genetic_data(sparse_grm: dxpy.DXFile, sparse_grm_sample: dxpy.DXFile) -> None:
         # Now grab all genetic data that I have in the folder /project_resources/genetics/
-        os.mkdir("genetics/")  # This is for legacy reasons to make sure all tests work...
+        Path("genetics/").mkdir()  # This is for legacy reasons to make sure all tests work...
         # This is the sparse matrix
         dxpy.download_dxfile(sparse_grm.get_id(),
                              'genetics/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx')

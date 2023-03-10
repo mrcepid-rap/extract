@@ -22,11 +22,9 @@ class ExtractAssociationPack(AssociationPack):
                  is_snp_tar: bool, is_gene_tar: bool, tarball_prefixes: List[str],
                  bgen_dict: Dict[str, BGENInformation], gene_ids: List[str]):
 
-        super().__init__(association_pack.pheno_files, association_pack.inclusion_found,
-                         association_pack.exclusion_found, association_pack.additional_covariates_found,
-                         association_pack.is_binary, association_pack.sex, association_pack.threads,
-                         association_pack.pheno_names,
-                         association_pack.found_quantitative_covariates, association_pack.found_categorical_covariates)
+        super().__init__(association_pack.is_binary, association_pack.sex, association_pack.threads,
+                         association_pack.pheno_names, association_pack.found_quantitative_covariates,
+                         association_pack.found_categorical_covariates)
 
         self.is_snp_tar = is_snp_tar
         self.is_gene_tar = is_gene_tar
