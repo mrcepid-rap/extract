@@ -1,11 +1,11 @@
 import csv
-import os
-from os.path import exists
-from typing import List
-
 import dxpy
 import pandas as pd
 import pandas.core.series
+
+from typing import List
+from pathlib import Path
+from os.path import exists
 
 from extract.extract_association_pack import ExtractAssociationPack
 from general_utilities.association_resources import process_snp_or_gene_tar, build_transcript_table, get_gene_id, \
@@ -110,12 +110,12 @@ class ExtractVariants:
                                                   self._association_pack.is_snp_tar,
                                                   self._association_pack.is_gene_tar))
 
-        # 6. Finally add the phenotypes/covariates table to the outputs
-        os.rename('phenotypes_covariates.formatted.txt',
-                  self._output_prefix + '.phenotypes_covariates.formatted.tsv')
-        self._outputs.append(self._output_prefix + '.phenotypes_covariates.formatted.tsv')
+        # 6. Finally, add the phenotypes/covariates table to the outputs
+        out_pheno_path = Path(f'{self._output_prefix}.phenotypes_covariates.formatted.tsv')
+        Path('phenotypes_covariates.formatted.txt').rename(out_pheno_path)
+        self._outputs.append(out_pheno_path)
 
-    def get_outputs(self):
+    def get_outputs(self) -> List[Path]:
         return self._outputs
 
     def _download_vep(self, chromosome: str) -> None:
@@ -132,7 +132,7 @@ class ExtractVariants:
         run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
 
     def _annotate_variants(self, tarball_prefix: str, gene_info: pandas.core.series.Series,
-                           chromosomes: set) -> List[str]:
+                           chromosomes: set) -> List[Path]:
 
         # This is a bit confusing, so explaining in full.
         # We need to annotate EACH GENE separately EXCEPT when running a SNP/GENE list tarball, SO...
@@ -155,9 +155,9 @@ class ExtractVariants:
             variant_index = pd.concat(variant_index)
 
         # Need to get the variants from the SAIGE groupfile:
-        with open(f'{tarball_prefix}.{gene_info["chrom"]}.SAIGE.groupFile.txt') as saige_group_file:
+        with Path(f'{tarball_prefix}.{gene_info["chrom"]}.SAIGE.groupFile.txt').open('r') as saige_group_file,\
+                Path(f'{tarball_prefix}.{gene_info["SYMBOL"]}.variants.txt').open('w') as var_file:
             var_ids = []
-            var_file = open(f'{tarball_prefix}.{gene_info["SYMBOL"]}.variants.txt', 'w')
             for line in saige_group_file:
                 data = line.rstrip().split("\t")
                 if data[0] == gene_info.name:
@@ -166,7 +166,6 @@ class ExtractVariants:
                         var_file.write(curr_id + "\n")
                         var_ids.append(curr_id)
                     break
-            var_file.close()
 
         relevant_vars = variant_index[variant_index['varID'].isin(var_ids)]
 
@@ -201,8 +200,8 @@ class ExtractVariants:
                                      sep="\t",
                                      names=['CHROM', 'POS', 'varID', 'REF', 'ALT', 'IID', 'GT'])
 
-        variant_file = f'{self._output_prefix}.{tarball_prefix}.{gene_info["SYMBOL"]}.variant_table.tsv'
-        carriers_file = f'{self._output_prefix}.{tarball_prefix}.{gene_info["SYMBOL"]}.carriers_formatted.tsv'
+        variant_file = Path(f'{self._output_prefix}.{tarball_prefix}.{gene_info["SYMBOL"]}.variant_table.tsv')
+        carriers_file = Path(f'{self._output_prefix}.{tarball_prefix}.{gene_info["SYMBOL"]}.carriers_formatted.tsv')
         geno_table.to_csv(path_or_buf=variant_file, index=False, sep="\t", na_rep='NA')
         carriers_table.to_csv(path_or_buf=carriers_file, index=False, sep="\t", na_rep='NA')
 
