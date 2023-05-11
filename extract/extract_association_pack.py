@@ -14,6 +14,9 @@ class ExtractProgramArgs(ProgramArgs):
     gene_ids: List[str]
     sparse_grm: dxpy.DXFile
     sparse_grm_sample: dxpy.DXFile
+    
+    def _check_opts(self):
+        pass
 
 
 class ExtractAssociationPack(AssociationPack):
