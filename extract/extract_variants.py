@@ -8,8 +8,7 @@ from pathlib import Path
 from os.path import exists
 
 from extract.extract_association_pack import ExtractAssociationPack
-from general_utilities.association_resources import process_snp_or_gene_tar, build_transcript_table, get_gene_id, \
-    run_cmd
+from general_utilities.association_resources import process_snp_or_gene_tar, build_transcript_table, get_gene_id
 from general_utilities.linear_model import linear_model
 from general_utilities.linear_model.linear_model import LinearModelResult
 from general_utilities.linear_model.proccess_model_output import merge_glm_staar_runs, process_linear_model_outputs, \
@@ -123,13 +122,12 @@ class ExtractVariants:
         vep_dx = self._association_pack.bgen_dict[chromosome]['vep']
         dxpy.download_dxfile(vep_dx.get_id(), chromosome + ".filtered.vep.tsv.gz")
 
-    @staticmethod
-    def _filter_individuals(tarball_prefix: str, chromosome: str) -> None:
+    def _filter_individuals(self, tarball_prefix: str, chromosome: str) -> None:
         # And filter the relevant SAIGE file to just the individuals we want so we can get actual MAC
         cmd = f'bcftools view --threads 4 -S /test/SAMPLES_Include.txt -Ob ' \
               f'-o /test/{tarball_prefix}.{chromosome}.saige_input.bcf ' \
               f'/test/{tarball_prefix}.{chromosome}.SAIGE.bcf'
-        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
+        self._association_pack.cmd_executor.run_cmd_on_docker(cmd)
 
     def _annotate_variants(self, tarball_prefix: str, gene_info: pandas.core.series.Series,
                            chromosomes: set) -> List[Path]:
@@ -173,23 +171,23 @@ class ExtractVariants:
         cmd = f'bcftools view --threads 2 -i \'ID=@/test/{tarball_prefix}.{gene_info["SYMBOL"]}.variants.txt\' -Ob ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.variant_filtered.bcf ' \
               f'/test/{tarball_prefix}.{gene_info["chrom"]}.saige_input.bcf'
-        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
+        self._association_pack.cmd_executor.run_cmd_on_docker(cmd)
         cmd = f'bcftools +fill-tags --threads 4 -Ob ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.final.bcf ' \
               f'/test/{tarball_prefix}.{gene_info["SYMBOL"]}.variant_filtered.bcf'
-        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
+        self._association_pack.cmd_executor.run_cmd_on_docker(cmd)
 
         # Now get actual annotations back in:
         cmd = f'bcftools query -f \'%ID\\t%MAF\\t%AC\\t%AC_Het\\t%AC_Hom\\n\' ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.annotated_vars.txt ' \
               f'/test/{tarball_prefix}.{gene_info["SYMBOL"]}.final.bcf'
-        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
+        self._association_pack.cmd_executor.run_cmd_on_docker(cmd)
 
         # And get a list of individuals with a variant:
         cmd = f'bcftools query -i \"GT=\'alt\'\" -f \'[%CHROM\\t%POS\\t%ID\\t%REF\\t%ALT\\t%SAMPLE\\t%GT\n]\' ' \
               f'-o /test/{tarball_prefix}.{gene_info["SYMBOL"]}.carriers.txt ' \
               f'/test/{tarball_prefix}.{gene_info["SYMBOL"]}.final.bcf'
-        run_cmd(cmd, is_docker=True, docker_image='egardner413/mrcepid-burdentesting')
+        self._association_pack.cmd_executor.run_cmd_on_docker(cmd)
 
         geno_table = pd.read_csv(tarball_prefix + "." + gene_info['SYMBOL'] + ".annotated_vars.txt",
                                  sep="\t",
