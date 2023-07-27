@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import dxpy
 
-from general_utilities.association_resources import BGENInformation
+from general_utilities.import_utils.import_lib import BGENInformation
 from runassociationtesting.association_pack import AssociationPack, ProgramArgs
 
 
@@ -27,7 +27,7 @@ class ExtractAssociationPack(AssociationPack):
 
         super().__init__(association_pack.is_binary, association_pack.sex, association_pack.threads,
                          association_pack.pheno_names, association_pack.found_quantitative_covariates,
-                         association_pack.found_categorical_covariates)
+                         association_pack.found_categorical_covariates, association_pack.cmd_executor)
 
         self.is_snp_tar = is_snp_tar
         self.is_gene_tar = is_gene_tar

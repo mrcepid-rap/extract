@@ -1,5 +1,8 @@
 ## Changelog
 
+* v1.0.1
+  * Implemented the CommandExecutor class
+
 * v1.0.0
   * Initial numbered release. See github logs for older changes
   * Modernised outputs from str to Path
