@@ -12,7 +12,7 @@ def load_requirements(fname: Path):
 
 setup(
     name='extract',
-    version='v1.0.0',
+    version='v1.0.1',
     packages=find_packages(),
     url='https://github.com/mrcepid-rap/mrcepid-runassociationtesting-extract',
     license='MIT',
