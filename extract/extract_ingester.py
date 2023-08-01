@@ -7,7 +7,7 @@ from typing import Tuple, List, Dict
 
 from extract.extract_association_pack import ExtractAssociationPack, ExtractProgramArgs
 from general_utilities.import_utils.import_lib import BGENInformation
-from runassociationtesting.ingest_data import IngestData
+from general_utilities.import_utils.module_loader.ingest_data import IngestData
 
 
 class ExtractIngestData(IngestData):
