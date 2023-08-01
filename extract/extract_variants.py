@@ -15,12 +15,14 @@ from general_utilities.linear_model.proccess_model_output import merge_glm_staar
     process_staar_outputs
 from general_utilities.linear_model.staar_model import staar_null, staar_genes
 from general_utilities.job_management.thread_utility import ThreadUtility
+from general_utilities.mrc_logger import MRCLogger
 
 
 class ExtractVariants:
 
     def __init__(self, output_prefix: str, association_pack: ExtractAssociationPack):
 
+        self._logger = MRCLogger(__name__).get_logger()
         self._outputs = []
         self._output_prefix = output_prefix
         self._association_pack = association_pack
@@ -46,7 +48,7 @@ class ExtractVariants:
     def run_tool(self):
 
         # 1. Download variant VEP annotations
-        print("Loading VEP annotations...")
+        self._logger.info("Loading VEP annotations...")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='An extraction thread failed',
                                        incrementor=5,
@@ -57,7 +59,7 @@ class ExtractVariants:
         thread_utility.collect_futures()
 
         # 2. Filter relevant files to individuals we want to keep
-        print("Filtering variant files to appropriate individuals...")
+        self._logger.info("Filtering variant files to appropriate individuals...")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='An extraction thread failed',
                                        incrementor=20,
@@ -83,7 +85,7 @@ class ExtractVariants:
         thread_utility.collect_futures()
 
         # 4. Actually collect variant information per-gene
-        print("Extracting variant information...")
+        self._logger.info("Extracting variant information...")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='An extraction thread failed',
                                        incrementor=20,
@@ -100,7 +102,7 @@ class ExtractVariants:
             self._outputs.extend(result)
 
         # 5. And run a linear and STAAR model(s) for all genes
-        print("Running linear models...")
+        self._logger.info("Running linear models...")
         self._run_linear_models()
         self._run_staar_models()
 
@@ -207,7 +209,7 @@ class ExtractVariants:
 
     def _run_linear_models(self):
 
-        print("Loading data and running null Linear Model")
+        self._logger.info("Loading data and running null Linear Model")
         null_model = linear_model.linear_model_null(self._association_pack.pheno_names[0],
                                                     self._association_pack.is_binary,
                                                     self._association_pack.ignore_base_covariates,
@@ -215,7 +217,7 @@ class ExtractVariants:
                                                     self._association_pack.found_categorical_covariates)
 
         # 2. Load the tarballs INTO separate genotypes dictionaries
-        print("Loading Linear Model genotypes")
+        self._logger.info("Loading Linear Model genotypes")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='A GLM thread failed',
                                        incrementor=10,
@@ -233,7 +235,7 @@ class ExtractVariants:
             genotype_packs[tarball_prefix] = genotype_dict
 
         # 3. Iterate through every model / gene (in linear_model_pack['genes']) pair and run a GLM
-        print("Submitting Linear Models to threads")
+        self._logger.info("Submitting Linear Models to threads")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='A GLM thread failed',
                                        incrementor=500,
@@ -269,7 +271,7 @@ class ExtractVariants:
         lm_stats_file.close()
 
         # 5. Annotate unformatted results and print final outputs
-        print("Annotating Linear Model results")
+        self._logger.info("Annotating Linear Model results")
         process_linear_model_outputs(self._output_prefix,
                                      self._association_pack.is_snp_tar, self._association_pack.is_gene_tar,
                                      self._gene_infos)
@@ -288,7 +290,7 @@ class ExtractVariants:
                 gene_list_file.close()
 
         # 1. Run the STAAR NULL model
-        print("Running STAAR Null Model(s)...")
+        self._logger.info("Running STAAR Null Model(s)...")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='A STAAR thread failed',
                                        incrementor=10,
@@ -304,7 +306,7 @@ class ExtractVariants:
         thread_utility.collect_futures()
 
         # 2. Run the actual per-gene association tests
-        print("Running STAAR masks * chromosomes...")
+        self._logger.info("Running STAAR masks * chromosomes...")
         thread_utility = ThreadUtility(self._association_pack.threads,
                                        error_message='A STAAR thread failed',
                                        incrementor=10,
@@ -321,7 +323,7 @@ class ExtractVariants:
                                                   has_gene_info=True)
 
         # 3. Print a preliminary STAAR output
-        print("Finalising STAAR outputs...")
+        self._logger.info("Finalising STAAR outputs...")
         completed_staar_files = []
         # And gather the resulting futures
         for result in thread_utility:
