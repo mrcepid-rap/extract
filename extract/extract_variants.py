@@ -126,7 +126,7 @@ class ExtractVariants:
 
     def _filter_individuals(self, tarball_prefix: str, chromosome: str) -> None:
         # And filter the relevant SAIGE file to just the individuals we want so we can get actual MAC
-        cmd = f'bcftools view --threads 4 -S /test/SAMPLES_Include.txt -Ob ' \
+        cmd = f'bcftools view --threads 4 -S /test/SAMPLES_Include.bcf.txt -Ob ' \
               f'-o /test/{tarball_prefix}.{chromosome}.saige_input.bcf ' \
               f'/test/{tarball_prefix}.{chromosome}.SAIGE.bcf'
         self._association_pack.cmd_executor.run_cmd_on_docker(cmd)
