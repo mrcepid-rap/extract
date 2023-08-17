@@ -1,7 +1,7 @@
 from extract import extract_ingester
 from extract.extract_association_pack import ExtractProgramArgs, ExtractAssociationPack
 from extract.extract_variants import ExtractVariants
-from runassociationtesting.module_loader import ModuleLoader
+from general_utilities.import_utils.module_loader.module_loader import ModuleLoader
 
 
 class LoadModule(ModuleLoader):

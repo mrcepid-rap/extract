@@ -4,7 +4,7 @@ from typing import Dict, List
 import dxpy
 
 from general_utilities.import_utils.import_lib import BGENInformation
-from runassociationtesting.association_pack import AssociationPack, ProgramArgs
+from general_utilities.import_utils.module_loader.association_pack import AssociationPack, ProgramArgs
 
 
 @dataclass
@@ -26,8 +26,9 @@ class ExtractAssociationPack(AssociationPack):
                  bgen_dict: Dict[str, BGENInformation], gene_ids: List[str]):
 
         super().__init__(association_pack.is_binary, association_pack.sex, association_pack.threads,
-                         association_pack.pheno_names, association_pack.found_quantitative_covariates,
-                         association_pack.found_categorical_covariates, association_pack.cmd_executor)
+                         association_pack.pheno_names, association_pack.ignore_base_covariates,
+                         association_pack.found_quantitative_covariates, association_pack.found_categorical_covariates,
+                         association_pack.cmd_executor)
 
         self.is_snp_tar = is_snp_tar
         self.is_gene_tar = is_gene_tar
