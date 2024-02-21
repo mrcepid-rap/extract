@@ -1,5 +1,8 @@
 ## Changelog
 
+* v1.0.3
+  * Updated dataclass of runtime arguments to properly call it's own super.__init__()
+
 * v1.0.2
   * Large number of general changes affecting all runassociationtesting modules. Please see the [RunAssociationTesting README](https://github.com/mrcepid-rap/mrcepid-runassociationtesting/blob/main/Readme.md) for more information
   * Proper DNANexus-compatible logging now implemented
