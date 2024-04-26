@@ -29,7 +29,7 @@ class LoadModule(ModuleLoader):
                                   type=self.dxfile_input, dest='association_tarballs', required=True,
                                   metavar=example_dxfile)
         self._parser.add_argument('--bgen_index',
-                                  help="list of bgen files and associated index/annotation",
+                                  help="list of WES-derived bgen files and associated index/annotation",
                                   type=self.dxfile_input, dest='bgen_index', required=True,
                                   metavar=example_dxfile)
         self._parser.add_argument('--gene_ids',

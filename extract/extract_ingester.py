@@ -12,7 +12,7 @@ class ExtractIngestData(IngestData):
         super().__init__(parsed_options)
 
         # Put additional options/covariate processing required by this specific package here
-        is_snp_tar, is_gene_tar, named_prefix, tarball_prefixes = ingest_tarballs(parsed_options.association_tarballs)
+        is_snp_tar, is_gene_tar, tarball_prefixes = ingest_tarballs(parsed_options.association_tarballs)
         bgen_dict = ingest_wes_bgen(parsed_options.bgen_index)
 
         if is_snp_tar is False and is_gene_tar is False and parsed_options.gene_ids is None:

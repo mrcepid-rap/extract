@@ -1,5 +1,8 @@
 ## Changelog
 
+* v1.0.4
+  * Fixed bugs related to new implementation of BGEN files in general_utilities
+
 * v1.0.3
   * Updated dataclass of runtime arguments to properly call it's own super.__init__()
 
