@@ -122,7 +122,7 @@ class ExtractVariants:
     def _download_vep(self, chromosome: str) -> None:
 
         vep_dx = self._association_pack.bgen_dict[chromosome]['vep']
-        dxpy.download_dxfile(vep_dx.get_id(), chromosome + ".filtered.vep.tsv.gz")
+        dxpy.download_dxfile(vep_dx, chromosome + ".filtered.vep.tsv.gz")
 
     def _filter_individuals(self, tarball_prefix: str, chromosome: str) -> None:
         # And filter the relevant SAIGE file to just the individuals we want so we can get actual MAC
