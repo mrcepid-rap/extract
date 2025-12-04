@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
-import dxpy
 from general_utilities.import_utils.file_handlers.input_file_handler import InputFileHandler
 
 from general_utilities.import_utils.import_lib import BGENInformation, TarballType
@@ -16,6 +15,7 @@ class ExtractProgramArgs(ProgramArgs):
     gene_ids: List[str]
     sparse_grm: InputFileHandler
     sparse_grm_sample: InputFileHandler
+
 
     def __post_init__(self):
         """@dataclass automatically calls this method after calling its own __init__().

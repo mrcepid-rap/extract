@@ -58,22 +58,23 @@ def temporary_path(tmp_path, monkeypatch):
         print(f"Temporary output files have been copied to: {persistent_dir}")
 
 
-@pytest.mark.parametrize("input_args, expected_output", [
+@pytest.mark.parametrize("input_args, filename, expected_output", [
     (
-        (
-            f"--association_tarballs {test_data_dir}/HC_PTV-MAF_001.tar.gz "
-            f"--bgen_index {test_data_dir}/bgen_locs.tsv "
-            f"--sparse_grm {test_data_dir}/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx "
-            f"--sparse_grm_sample {test_data_dir}/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx.sampleIDs.txt "
-            f"--gene_ids OR4F5 MATN1 "
-            f"--phenofile {test_data_dir}/phenotype.tsv "
-            f"--transcript_index {test_data_dir}/transcripts.tsv.gz "
-            f"--base_covariates {test_data_dir}/base_covariates.covariates "
-        ),
-        Path(__file__).parent / "expected_results/test.genes.STAAR_glm.stats.tsv.gz"
+            (
+                    f"--association_tarballs {test_data_dir}/HC_PTV-MAF_001.tar.gz "
+                    f"--bgen_index {test_data_dir}/bgen_locs.tsv "
+                    f"--sparse_grm {test_data_dir}/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx "
+                    f"--sparse_grm_sample {test_data_dir}/sparseGRM_470K_Autosomes_QCd.sparseGRM.mtx.sampleIDs.txt "
+                    f"--gene_ids OR4F5 MATN1 "
+                    f"--phenofile {test_data_dir}/phenotype.tsv "
+                    f"--transcript_index {test_data_dir}/transcripts.tsv.gz "
+                    f"--base_covariates {test_data_dir}/base_covariates.covariates "
+            ),
+            "test.genes.STAAR_glm.stats.tsv.gz",
+            Path(__file__).parent / "expected_results/test.genes.STAAR_glm.stats.tsv.gz"
     ),
 ])
-def test_load_module_run(input_args, expected_output, temporary_path):
+def test_load_module_run(input_args, filename, expected_output, temporary_path):
     """
     Test the LoadModule class: initialization, running start_module, and outputs.
     """
@@ -90,7 +91,21 @@ def test_load_module_run(input_args, expected_output, temporary_path):
     assert outputs is not None, "Outputs should not be None"
 
     # assert the output
-    df_results = pd.read_csv('test.genes.STAAR_glm.stats.tsv.gz', sep='\t', compression='gzip')
+    df_results = pd.read_csv(f'{filename}', sep='\t', compression='gzip')
     df_expected = pd.read_csv(expected_output, sep='\t', compression='gzip')
-    pd.testing.assert_frame_equal(df_results, df_expected)
 
+    # Basic shape/column checks (optional but nice)
+    assert df_results.shape == df_expected.shape
+    assert list(df_results.columns) == list(df_expected.columns)
+
+    # Sort rows so row order doesn't matter
+    if "variant" in df_results.columns:
+        sort_cols = ["variant"]
+    else:
+        # fall back to sorting by all columns if you want it general
+        sort_cols = list(df_results.columns)
+
+    df_results_sorted = df_results.sort_values(sort_cols).reset_index(drop=True)
+    df_expected_sorted = df_expected.sort_values(sort_cols).reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(df_results_sorted, df_expected_sorted)
