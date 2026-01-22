@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+import pandas as pd
 
 from general_utilities.import_utils.file_handlers.input_file_handler import InputFileHandler
-
 from general_utilities.import_utils.import_lib import BGENInformation, TarballType
 from general_utilities.import_utils.module_loader.association_pack import AssociationPack, ProgramArgs
 
@@ -15,7 +16,6 @@ class ExtractProgramArgs(ProgramArgs):
     gene_ids: List[str]
     sparse_grm: InputFileHandler
     sparse_grm_sample: InputFileHandler
-
 
     def __post_init__(self):
         """@dataclass automatically calls this method after calling its own __init__().
@@ -32,20 +32,17 @@ class ExtractProgramArgs(ProgramArgs):
 class ExtractAssociationPack(AssociationPack):
 
     def __init__(self, association_pack: AssociationPack, tarball_type: TarballType,
-                 is_snp_tar: bool, is_gene_tar: bool, tarball_prefixes: List[str],
+                 tarball_prefixes: List[Path],
                  bgen_dict: Dict[str, BGENInformation], gene_ids: List[str], sparse_grm: Path,
                  sparse_grm_sample: Path):
-
         super().__init__(association_pack.is_binary, association_pack.sex, association_pack.threads,
-                         association_pack.pheno_names, association_pack.ignore_base_covariates,
+                         association_pack.pheno_names,
                          association_pack.found_quantitative_covariates, association_pack.found_categorical_covariates,
-                         association_pack.cmd_executor, association_pack.final_covariates, association_pack.inclusion_samples,
+                         association_pack.cmd_executor, association_pack.final_covariates,
+                         association_pack.inclusion_samples,
                          association_pack.exclusion_samples, association_pack.transcript_index)
 
-        self.is_snp_tar = is_snp_tar
-        self.is_gene_tar = is_gene_tar
         self.tarball_type = tarball_type
-        self.is_non_standard_tar = is_snp_tar or is_gene_tar
         self.tarball_prefixes = tarball_prefixes
         self.bgen_dict = bgen_dict
         self.gene_ids = gene_ids

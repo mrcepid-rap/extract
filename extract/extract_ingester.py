@@ -41,8 +41,6 @@ class ExtractIngestData(IngestData):
         self.set_association_pack(ExtractAssociationPack(
             association_pack=self.get_association_pack(),
             tarball_type=tarball_type,
-            is_snp_tar=tarball_type == TarballType.SNP if tarball_type else False,
-            is_gene_tar=tarball_type == TarballType.GENE if tarball_type else False,
             tarball_prefixes=tarball_prefixes if tarball_prefixes else [],
             bgen_dict=bgen_dict,
             gene_ids=parsed_options.gene_ids,

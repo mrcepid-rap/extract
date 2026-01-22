@@ -1,12 +1,13 @@
 [build-system]
 requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "extract"
-version = "1.0.4"
-description = ""
+version = "2.0.0"
+description = "Extract gene and variant genotypes & run linear models"
 authors = [
-    { name = "Eugene Gardner", email = "eugene.gardner@mrc-epid.cam.ac.uk" },
+    { name = "Eugene Gardner", email = "eugene.gardner@insmed.com" },
     { name = "Alish Palmos", email = "alish.palmos@insmed.com" }
 ]
 readme = "README.md"
@@ -22,10 +23,12 @@ dependencies = [
     "zstd==1.5.5.1",
     "toml==0.10.2",
     "pytest>=7.4.0,<8.0.0",
-#    "burden @ git+https://github.com/mrcepid-rap/burden.git@main",
-    "general-utilities @ git+https://github.com/mrcepid-rap/general_utilities.git@bugfix/add_crrent_directory_as_mount_tested",
-
+    "general-utilities @ git+https://github.com/mrcepid-rap/general_utilities.git@v2.0.0",
 ]
 
 [project.urls]
-Repository = "https://github.com/mrcepid-rap/burden"
+Repository = "https://github.com/Insmed/extract"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["extract*"]

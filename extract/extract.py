@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 from typing import List
 
@@ -7,6 +8,7 @@ from general_utilities.association_resources import (
     get_gene_id,
     process_gene_or_snp_wgs
 )
+from general_utilities.import_utils.import_lib import TarballType
 from general_utilities.mrc_logger import MRCLogger
 
 from extract.extract_association_pack import ExtractAssociationPack
@@ -15,11 +17,13 @@ from extract.gene_extraction import GeneExtractionPipeline
 
 class ExtractVariants:
     """
-    Main extraction class that routes to the gene extraction pipeline.
+    Main extraction class that routes to appropriate pipeline.
 
-    Supports two gene-driven extraction modes:
-    1. Standard gene extraction from gene-based tarballs (requires association_tarballs + gene IDs)
-    2. Non-standard SNP/GENE tarball extraction (tarballs contain SNP or gene lists directly)
+    Supports two extraction modes:
+    1. Variant extraction from BGEN using bgen_map (requires bgen_map + variant IDs)
+    2. Gene extraction from tarballs (requires association_tarballs + gene IDs)
+       - Standard gene-based tarballs
+       - Non-standard SNP/GENE tarballs
     """
 
     def __init__(self, output_prefix: str, association_pack: ExtractAssociationPack):
@@ -29,9 +33,7 @@ class ExtractVariants:
         self._association_pack = association_pack
 
         # Initialize data structures
-        self._gene_infos = []
-        self._gene_chunk_map = []
-        self._chromosomes = set()
+        self.genetic_map = defaultdict(list)
 
         # Build transcripts table
         self._transcripts_table = build_transcript_table(
@@ -39,9 +41,9 @@ class ExtractVariants:
         )
 
         # Route based on what was provided
-        if self._association_pack.is_non_standard_tar:
+        if self._association_pack.tarball_type in (TarballType.SNP, TarballType.GENE):
             self._initialize_nonstandard_tarball()
-        else:
+        elif self._association_pack.gene_ids is not None:
             self._initialize_gene_extraction()
 
     def _initialize_nonstandard_tarball(self):
@@ -54,16 +56,13 @@ class ExtractVariants:
         self._logger.info("Initializing non-standard tarball extraction (SNP/GENE tar)")
 
         gene_info, returned_chromosomes = process_snp_or_gene_tar(
-            self._association_pack.is_snp_tar,
-            self._association_pack.is_gene_tar,
+            self._association_pack.tarball_type == TarballType.SNP,
+            self._association_pack.tarball_type == TarballType.GENE,
             self._association_pack.tarball_prefixes[0]
         )
 
-        self._gene_infos.append(gene_info)
-        self._chromosomes = returned_chromosomes
-
-        for chromosome in self._chromosomes:
-            self._gene_chunk_map.append((gene_info, chromosome))
+        for chromosome in returned_chromosomes:
+            self.genetic_map[chromosome].append(gene_info)
 
     def _initialize_gene_extraction(self):
         """
@@ -76,23 +75,25 @@ class ExtractVariants:
         for gene_id in self._association_pack.gene_ids:
             # get_gene_id handles gene symbols and ENST IDs
             gene_info = get_gene_id(gene_id, self._transcripts_table)
-            self._gene_infos.append(gene_info)
 
             # Search for this gene across all chunks
             for chunk in self._association_pack.bgen_dict:
-                chromosomes = process_gene_or_snp_wgs(
-                    identifier=gene_info.name,
-                    tarball_prefix=self._association_pack.tarball_prefixes[0],
-                    chunk=chunk
-                )
+                try:
+                    chromosomes = process_gene_or_snp_wgs(
+                        identifier=gene_info.name,
+                        tarball_prefix=self._association_pack.tarball_prefixes[0],
+                        chunk=chunk
+                    )
+                except FileNotFoundError:
+                    self._logger.debug(f"Variant table for chunk {chunk} not found, skipping.")
+                    continue
 
                 if chromosomes:
                     self._logger.info(
                         f"{gene_info['SYMBOL']} found in {chunk} "
                         f"({', '.join(chromosomes)})"
                     )
-                    self._chromosomes.add(chunk)
-                    self._gene_chunk_map.append((gene_info, chunk))
+                    self.genetic_map[chunk].append(gene_info)
 
     def run_tool(self):
         """Execute the appropriate extraction pipeline."""
@@ -100,9 +101,7 @@ class ExtractVariants:
         pipeline = GeneExtractionPipeline(
             output_prefix=self._output_prefix,
             association_pack=self._association_pack,
-            gene_infos=self._gene_infos,
-            gene_chunk_map=self._gene_chunk_map,
-            chromosomes=self._chromosomes,
+            genetic_map=self.genetic_map,
             transcripts_table=self._transcripts_table
         )
 

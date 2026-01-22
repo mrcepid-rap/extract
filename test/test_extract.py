@@ -58,7 +58,7 @@ def temporary_path(tmp_path, monkeypatch):
         print(f"Temporary output files have been copied to: {persistent_dir}")
 
 
-@pytest.mark.parametrize("input_args, filename, expected_output", [
+@pytest.mark.parametrize("input_args, filename, expected_output, carrier_files", [
     (
             (
                     f"--association_tarballs {test_data_dir}/HC_PTV-MAF_001.tar.gz "
@@ -71,10 +71,16 @@ def temporary_path(tmp_path, monkeypatch):
                     f"--base_covariates {test_data_dir}/base_covariates.covariates "
             ),
             "test.genes.STAAR_glm.stats.tsv.gz",
-            Path(__file__).parent / "expected_results/test.genes.STAAR_glm.stats.tsv.gz"
+            Path(__file__).parent / "expected_results/test.genes.STAAR_glm.stats.tsv.gz",
+            [
+                Path(__file__).parent / "expected_results/test.HC_PTV-MAF_001.MATN1.carriers_formatted.tsv",
+                Path(__file__).parent / "expected_results/test.HC_PTV-MAF_001.OR4F5.carriers_formatted.tsv",
+                Path(__file__).parent / "expected_results/test.HC_PTV-MAF_001.MATN1.variant_table.tsv",
+                Path(__file__).parent / "expected_results/test.HC_PTV-MAF_001.OR4F5.variant_table.tsv"
+            ]
     ),
 ])
-def test_load_module_run(input_args, filename, expected_output, temporary_path):
+def test_load_module_run(input_args, filename, expected_output, temporary_path, carrier_files):
     """
     Test the LoadModule class: initialization, running start_module, and outputs.
     """
@@ -109,3 +115,12 @@ def test_load_module_run(input_args, filename, expected_output, temporary_path):
     df_expected_sorted = df_expected.sort_values(sort_cols).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(df_results_sorted, df_expected_sorted)
+
+    # test to ensure the carrier tables are identical between actual and expected
+    # the expected filenames should be the same
+    for carrier_file in carrier_files:
+        df_carrier = pd.read_csv(carrier_file, sep='\t')
+        df_expected_carrier = pd.read_csv(carrier_file.name, sep='\t')
+        df_carrier = df_carrier.sort_index(axis=1)
+        df_expected_carrier = df_expected_carrier.sort_index(axis=1)
+        pd.testing.assert_frame_equal(df_carrier, df_expected_carrier)

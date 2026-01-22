@@ -16,3 +16,6 @@ test/test_data/*
 
 # Dependency files
 uv.lock
+
+# DNA Nexus files
+dx_run.log
