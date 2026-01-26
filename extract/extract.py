@@ -15,7 +15,7 @@ from extract.extract_association_pack import ExtractAssociationPack
 from extract.gene_extraction import GeneExtractionPipeline
 
 
-class ExtractVariants:
+class Extract:
     """
     Main extraction class.
 
@@ -94,7 +94,7 @@ class ExtractVariants:
                     self.genetic_map[chunk].append(gene_info)
 
     def run_tool(self):
-        """Execute the appropriate extraction pipeline."""
+        """Execute the pipeline."""
         self._logger.info("Running gene extraction pipeline...")
         pipeline = GeneExtractionPipeline(
             output_prefix=self._output_prefix,

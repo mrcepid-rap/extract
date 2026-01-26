@@ -1,7 +1,7 @@
 from general_utilities.import_utils.module_loader.module_loader import ModuleLoader
 
 from extract import extract_ingester
-from extract.extract import ExtractVariants
+from extract.extract import Extract
 from extract.extract_association_pack import ExtractProgramArgs, ExtractAssociationPack
 
 
@@ -12,7 +12,7 @@ class LoadModule(ModuleLoader):
 
     def start_module(self) -> None:
         # Start the extract variants tool
-        extract_tool = ExtractVariants(self.output_prefix, self.association_pack)
+        extract_tool = Extract(self.output_prefix, self.association_pack)
         extract_tool.run_tool()
 
         # Retrieve outputs – all tools _should_ append to the outputs object so they can be retrieved here.
