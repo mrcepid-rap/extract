@@ -1,0 +1,21 @@
+# IDE files
+.idea/
+
+# Build artifacts
+build/
+extract.egg-info
+
+# Python cache
+extract/__pycache__/
+test/__pycache__/
+
+# Test outputs and logs
+test/dx_run.log
+test/temp_test_outputs
+test/test_data/*
+
+# Dependency files
+uv.lock
+
+# DNA Nexus files
+dx_run.log
