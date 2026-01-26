@@ -17,13 +17,11 @@ from extract.gene_extraction import GeneExtractionPipeline
 
 class ExtractVariants:
     """
-    Main extraction class that routes to appropriate pipeline.
+    Main extraction class.
 
-    Supports two extraction modes:
-    1. Variant extraction from BGEN using bgen_map (requires bgen_map + variant IDs)
-    2. Gene extraction from tarballs (requires association_tarballs + gene IDs)
-       - Standard gene-based tarballs
-       - Non-standard SNP/GENE tarballs
+    Gene extraction from tarballs (requires association_tarballs + gene IDs)
+    - Standard gene-based tarballs
+    - Non-standard SNP/GENE tarballs
     """
 
     def __init__(self, output_prefix: str, association_pack: ExtractAssociationPack):
